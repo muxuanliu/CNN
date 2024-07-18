@@ -9,24 +9,26 @@ import matplotlib.pyplot as plt
 import time
 from tqdm import tqdm  # 导入tqdm库，用于显示进度条
 from torchvision.datasets import ImageFolder
+
+
 # t代表test
 
 
 def t_data_process():
-    ROOT_TRAIN = r'./data/medical-mnist/train'
+    ROOT_TRAIN = r'./data/medical-mnist/test'
 
     normalize = transforms.Normalize(mean=[0.359], std=[0.079])
     # 定义数据集处理方法
-    test_transform = transforms.Compose([transforms.Resize((224,224)),transforms.ToTensor(),normalize])
+    test_transform = transforms.Compose(
+        [transforms.Grayscale(), transforms.Resize((224, 224)), transforms.ToTensor(), normalize])
 
     # 加载数据集
     test_data = ImageFolder(ROOT_TRAIN, transform=test_transform)
 
-
     test_dataloader = Data.DataLoader(dataset=test_data,
-                                       batch_size=1,
-                                       shuffle=True,
-                                       num_workers=0)
+                                      batch_size=1,
+                                      shuffle=True,
+                                      num_workers=0)
 
     return test_dataloader
 
@@ -53,7 +55,6 @@ def t_model_process(model, test_dataloader):
         progress_train_bar = tqdm(total=len(test_dataloader), desc=f'Testing  ', unit='img')
 
         for test_x, test_y in test_dataloader:
-
             test_x = test_x.to(device)
             test_y = test_y.to(device)
 
@@ -83,7 +84,6 @@ def t_model_process(model, test_dataloader):
     print(f"test_corrects:{test_corrects}")
     print(f"test_num:{test_num}")
 
-
     # 计算准确率
     test_acc = test_corrects.double().item() / test_num
     print(f'测试的准确率：{test_acc}')
@@ -102,8 +102,7 @@ def t_model_process(model, test_dataloader):
     plt.savefig('./result_picture/Confusion_Matrix.png', bbox_inches='tight')
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     # 加载模型
     model = GoogLeNet(Inception)
 
@@ -115,7 +114,7 @@ if __name__=="__main__":
     test_dataloader = t_data_process()
 
     # 加载模型测试的函数
-    t_model_process(model,test_dataloader)
+    t_model_process(model, test_dataloader)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -135,8 +134,3 @@ if __name__=="__main__":
     #         label = b_y.item()
     #
     #         print(f'预测值：{classes[result]}',"-----------",f'真实值：{classes[label]}')
-
-
-
-
-
